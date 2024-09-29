@@ -67,7 +67,7 @@ export default function DataTable(props: DataTableProps) {
 
   const fetchUsers = async () => {
     try {
-      const res = await axios.get('http://192.168.0.88:4000/users');
+      const res = await axios.get('http://localhost:4000/users');
 
       if (res && res.data) {
         setUsers(res.data.map((user: User) => ({ ...user, id: user._id })));
@@ -79,7 +79,7 @@ export default function DataTable(props: DataTableProps) {
 
   const deleteUser = async (id: string) => {
     try {
-      const res = await axios.delete(`http://192.168.0.88:4000/users/${id}`);
+      const res = await axios.delete(`http://localhost:4000/users/${id}`);
       if (res) {
         fetchUsers();
       }
@@ -96,12 +96,39 @@ export default function DataTable(props: DataTableProps) {
         lastName: user.lastName,
         password: user.password,
       };
-      const res = await axios.post('http://192.168.0.88:4000/users', userPayload);
+      const res = await axios.post('http://localhost:4000/users', userPayload);
 
       if (res && res.data) {
         fetchUsers();
         setOpenSignUp(false);
       }
+    } catch (error) {
+      console.log('[Error]:', error);
+    }
+  };
+
+  const handleExport = async () => {
+    try {
+      const csv = await axios.get('http://localhost:4000/users/export/csv', {
+        responseType: 'text',
+      });
+
+      // Create a Blob from the CSV data
+      const blob = new Blob([csv.data], { type: 'text/csv' });
+
+      // Create a link element to trigger the download
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = 'users.csv'; // The name of the downloaded file
+
+      // Append the link to the body
+      document.body.appendChild(link);
+
+      // Trigger the download by simulating a click
+      link.click();
+
+      // Clean up and remove the link
+      document.body.removeChild(link);
     } catch (error) {
       console.log('[Error]:', error);
     }
@@ -117,7 +144,7 @@ export default function DataTable(props: DataTableProps) {
         <Button variant="contained" color="primary" size="small" onClick={() => setOpenSignUp(true)}>
           Sign Up
         </Button>
-        <Button variant="contained" color="primary" size="small">
+        <Button variant="contained" color="primary" size="small" onClick={handleExport}>
           Export
         </Button>
       </div>
