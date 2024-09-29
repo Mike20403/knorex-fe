@@ -10,3 +10,5 @@
      ```bash
    npm run dev
    ```
+## ! Note: 
+If you got problems when installing the packages. Try to remove package.lock.json
